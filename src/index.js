@@ -61,7 +61,7 @@ btnLoadMore.classList.add('is-hidden');
 
 searchForm.addEventListener('submit', onSubmitForm);
 
-function onSubmitForm(event) {
+async function onSubmitForm(event) {
     event.preventDefault();
     gallery.innerHTML = '';
     page = 1;
@@ -78,14 +78,13 @@ function onSubmitForm(event) {
         return;
     }
 
-    fetchPhoto(keyOfSearchPhoto, page, perPage)
-        .then(data => {
-            const searchResults = data.hits;
+    try {
+        const data = await fetchPhoto(keyOfSearchPhoto, page, perPage);
+        const searchResults = data.hits;
             if (data.totalHits === 0) {
                 Notify.failure('Sorry, there are no images matching your search query. Please try again.', paramsForNotify);
             } else {
                 Notify.info(`Hooray! We found ${data.totalHits} images.`, paramsForNotify);
-                // console.log(searchResults);
                 createMarkup(searchResults);
                 lightbox.refresh();
 
@@ -94,20 +93,17 @@ function onSubmitForm(event) {
                 btnLoadMore.classList.remove('is-hidden');
                 window.addEventListener('scroll', showLoadMorePage);
             };
-            // scrollPage();
-        })
-        .catch(onFetchError);
-
+    } catch (e){
+        onFetchError(e)
+    }
     btnLoadMore.addEventListener('click', onClickLoadMore);
-
-    event.currentTarget.reset();
 };
 
-function onClickLoadMore() {
+async function onClickLoadMore() {
     page += 1;
-    fetchPhoto(keyOfSearchPhoto, page, perPage)
-        .then(data => {
-            const searchResults = data.hits;
+    try {
+        const data = await fetchPhoto(keyOfSearchPhoto, page, perPage);
+        const searchResults = data.hits;
             const numberOfPage = Math.ceil(data.totalHits / perPage);
             
             createMarkup(searchResults);
@@ -118,9 +114,9 @@ function onClickLoadMore() {
                 window.removeEventListener('scroll', showLoadMorePage);
             };
             lightbox.refresh();
-            // scrollPage();
-        })
-        .catch(onFetchError);
+    } catch (e) {
+        onFetchError(e)
+    }
 };
 
 function onFetchError() {
