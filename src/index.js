@@ -79,6 +79,7 @@ async function onSubmitForm(event) {
     }
 
     try {
+        btnLoadMore.classList.add('is-hidden');
         const data = await fetchPhoto(keyOfSearchPhoto, page, perPage);
         const searchResults = data.hits;
             if (data.totalHits === 0) {
